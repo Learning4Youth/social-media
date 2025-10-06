@@ -1,103 +1,148 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { useState } from 'react';
+import { supabase } from '@/lib/supabase';
+
+export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [darkMode, setDarkMode] = useState(true);
+  const [hoveredTheme, setHoveredTheme] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError('');
+  setIsLoading(true);
+
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      console.error('Login error:', error);
+      setError('Invalid email or password');
+      setIsLoading(false);
+      return;
+    }
+
+    console.log('Login successful!');
+    window.location.href = '/HomePage';
+  } catch (err) {
+    console.error('Catch error:', err);
+    setError('Login failed');
+    setIsLoading(false);
+  }
+};
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className={`min-h-screen transition-colors duration-700 ${darkMode ? 'bg-orange-500' : 'bg-gray-50'} flex items-center justify-center`}>
+      <div className="absolute top-8 right-8">
+        <button
+          onClick={() => setDarkMode(!darkMode)}
+          onMouseEnter={() => setHoveredTheme(true)}
+          onMouseLeave={() => setHoveredTheme(false)}
+          className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+            darkMode 
+              ? hoveredTheme ? 'text-white' : 'text-black'
+              : hoveredTheme ? 'text-orange-500' : 'text-black'
+          }`}
+        >
+          {darkMode ? (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+          ) : (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          )}
+        </button>
+      </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      <div className="w-full max-w-md px-8">
+        <div className="text-center mb-12">
+          <h1 className={`text-6xl font-light mb-4 tracking-tight ${darkMode ? 'text-black' : 'text-black'}`}>
+            SocialGen
+          </h1>
+          <p className={`text-lg ${darkMode ? 'text-black' : 'text-gray-600'}`}>
+            AI-Powered Content Generator
+          </p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        <div className={`rounded-2xl p-8 border-2 ${darkMode ? 'bg-orange-500 border-black' : 'bg-white border-black'}`}>
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div>
+              <label className={`block mb-2 text-sm font-medium ${darkMode ? 'text-black' : 'text-gray-700'}`}>
+                Email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="your.email@company.com"
+                className={`w-full px-4 py-3 rounded-xl transition-all border-2 ${
+                  darkMode 
+                    ? `bg-orange-400 ${email.trim() ? 'border-white text-white' : 'border-black text-black'} focus:border-white focus:text-white placeholder-gray-600` 
+                    : 'bg-white border-black text-black focus:border-orange-500 placeholder-gray-400'
+                } focus:outline-none`}
+              />
+            </div>
+
+            <div>
+              <label className={`block mb-2 text-sm font-medium ${darkMode ? 'text-black' : 'text-gray-700'}`}>
+                Password
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="••••••••"
+                className={`w-full px-4 py-3 rounded-xl transition-all border-2 ${
+                  darkMode 
+                    ? `bg-orange-400 ${password ? 'border-white text-white' : 'border-black text-black'} focus:border-white focus:text-white placeholder-gray-600` 
+                    : 'bg-white border-black text-black focus:border-orange-500 placeholder-gray-400'
+                } focus:outline-none`}
+              />
+            </div>
+
+            {error && (
+              <div className={`p-3 rounded-xl ${darkMode ? 'bg-red-500/20 text-red-900' : 'bg-red-50 text-red-600'} text-sm`}>
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={`w-full py-4 rounded-xl font-medium transition-all ${
+                darkMode
+                  ? 'bg-black text-white hover:bg-zinc-800'
+                  : 'bg-orange-500 text-white hover:bg-orange-600'
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
+            >
+              {isLoading ? 'Signing in...' : 'Sign In'}
+            </button>
+          </form>
+
+          <div className={`mt-6 text-center text-sm ${darkMode ? 'text-black' : 'text-gray-600'}`}>
+            Team members only • Contact admin for access
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
